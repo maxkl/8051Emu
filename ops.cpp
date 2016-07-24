@@ -16,8 +16,8 @@ namespace emu {
     void ajmp7(Processor& p) { printf("\"ajmp7\" called but not implemented\n"); }
     void ajmp8(Processor& p) { printf("\"ajmp8\" called but not implemented\n"); }
 
-    void ljmp(Processor& p) { uint8_t upper = p.fetchRom(); uint8_t lower = p.fetchRom(); p.pc = (upper << 8) + lower; }
-    void sjmp(Processor& p) { int8_t offset = p.fetchRom(); p.pc += offset; }
+    void ljmp(Processor& p) { uint8_t upper = p.fetchRom(); uint8_t lower = p.fetchRom(); p.setPc((upper << 8) + lower); }
+    void sjmp(Processor& p) { int8_t offset = p.fetchRom(); p.setPc(p.pc + offset); }
     void jmp(Processor& p) { printf("\"jmp\" called but not implemented\n"); }
 
     void acall1(Processor& p) { printf("\"acall1\" called but not implemented\n"); }

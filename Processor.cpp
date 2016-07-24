@@ -9,14 +9,14 @@
 namespace emu {
 
     Processor::Processor()
-            : rom(32768) {
+            : rom(0x8000) {
 
     }
 
     void Processor::run() {
-        pc = 0;
+        setPc(0);
 
-        while (pc < 64) {
+        while (pc != 0x7fff) {
             tick();
         }
     }
@@ -39,7 +39,9 @@ namespace emu {
     }
 
     std::uint8_t Processor::fetchRom() {
-        return rom[pc++];
+        uint8_t value = rom[pc];
+        setPc(static_cast<uint16_t>(pc + 1));
+        return value;
     }
 
     void Processor::execOp() {
@@ -50,6 +52,10 @@ namespace emu {
         } else {
             printf("Opcode 0x%02x not implemented\n", opcode);
         }
+    }
+
+    void Processor::setPc(uint16_t value) {
+        pc = static_cast<uint16_t>(value & 0x7fff);
     }
 
     Memory::Memory()

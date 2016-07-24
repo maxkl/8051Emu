@@ -35,6 +35,8 @@ namespace emu {
 
         void execOp();
 
+        void setPc(uint16_t value);
+
         std::vector<std::uint8_t> rom;
         Memory ram;
         std::uint16_t pc;
