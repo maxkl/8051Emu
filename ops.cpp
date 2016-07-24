@@ -17,7 +17,7 @@ namespace emu {
     void ajmp8(Processor& p) { printf("\"ajmp8\" called but not implemented\n"); }
 
     void ljmp(Processor& p) { printf("\"ljmp\" called but not implemented\n"); }
-    void sjmp(Processor& p) { printf("\"sjmp\" called but not implemented\n"); }
+    void sjmp(Processor& p) { p.pc += static_cast<int8_t>(p.fetchRom()); }
     void jmp(Processor& p) { printf("\"jmp\" called but not implemented\n"); }
 
     void acall1(Processor& p) { printf("\"acall1\" called but not implemented\n"); }
@@ -553,6 +553,6 @@ namespace emu {
             mov_r7_a
     };
 
-    const size_t op_count = sizeof(ops) / sizeof(ops[0]);
+    const size_t op_count = sizeof(ops) / sizeof(*ops);
 
 }
