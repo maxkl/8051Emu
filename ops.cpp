@@ -50,8 +50,8 @@ namespace emu {
     void dec_r7(Processor& p) { printf("\"dec_r7\" called but not implemented\n"); }
 
     void jb(Processor& p) { uint8_t badr = p.fetchRom(); uint8_t offset = p.fetchRom(); if(p.ram.readBit(badr)) { p.setPc(p.pc + offset); } }
-    void jbc(Processor& p) { printf("\"jbc\" called but not implemented\n"); }
-    void jnb(Processor& p) { printf("\"jnb\" called but not implemented\n"); }
+    void jbc(Processor& p) { uint8_t badr = p.fetchRom(); uint8_t offset = p.fetchRom(); if(p.ram.readBit(badr)) { p.ram.writeBit(badr, false); p.setPc(p.pc + offset); } }
+    void jnb(Processor& p) { uint8_t badr = p.fetchRom(); uint8_t offset = p.fetchRom(); if(!p.ram.readBit(badr)) { p.setPc(p.pc + offset); } }
     void jc(Processor& p) { printf("\"jc\" called but not implemented\n"); }
     void jnc(Processor& p) { printf("\"jnc\" called but not implemented\n"); }
     void jz(Processor& p) { printf("\"jz\" called but not implemented\n"); }
