@@ -45,17 +45,21 @@ namespace emu {
     }
 
     void Processor::execOp() {
-        std::uint8_t opcode = fetchRom();
+        instruction = fetchRom();
 
-        if (opcode < op_count) {
-            ops[opcode](*this);
+        if (instruction < op_count) {
+            ops[instruction](*this);
         } else {
-            printf("Opcode 0x%02x not implemented\n", opcode);
+            printf("Opcode 0x%02x not implemented\n", instruction);
         }
     }
 
     void Processor::setPc(uint16_t value) {
         pc = static_cast<uint16_t>(value & 0x7fff);
+    }
+
+    void Processor::setPc(uint8_t lower, uint8_t upper) {
+        setPc(lower | upper << 8);
     }
 
     Memory::Memory()

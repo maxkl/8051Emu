@@ -36,10 +36,12 @@ namespace emu {
         void execOp();
 
         void setPc(uint16_t value);
+        void setPc(uint8_t lower, uint8_t upper);
 
         std::vector<std::uint8_t> rom;
         Memory ram;
         std::uint16_t pc;
+        std::uint8_t instruction;
     private:
 
         void tick();

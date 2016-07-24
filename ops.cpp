@@ -7,27 +7,13 @@ namespace emu {
 
     void nop(Processor& p) {}
 
-    void ajmp1(Processor& p) { printf("\"ajmp1\" called but not implemented\n"); }
-    void ajmp2(Processor& p) { printf("\"ajmp2\" called but not implemented\n"); }
-    void ajmp3(Processor& p) { printf("\"ajmp3\" called but not implemented\n"); }
-    void ajmp4(Processor& p) { printf("\"ajmp4\" called but not implemented\n"); }
-    void ajmp5(Processor& p) { printf("\"ajmp5\" called but not implemented\n"); }
-    void ajmp6(Processor& p) { printf("\"ajmp6\" called but not implemented\n"); }
-    void ajmp7(Processor& p) { printf("\"ajmp7\" called but not implemented\n"); }
-    void ajmp8(Processor& p) { printf("\"ajmp8\" called but not implemented\n"); }
+    void ajmp(Processor& p) { uint8_t lower = p.fetchRom(); uint8_t upper = static_cast<uint8_t>(p.pc & 0xf8 | (p.instruction & 0xe0) >> 5); p.setPc(lower, upper); }
 
-    void ljmp(Processor& p) { uint8_t upper = p.fetchRom(); uint8_t lower = p.fetchRom(); p.setPc((upper << 8) + lower); }
+    void ljmp(Processor& p) { uint8_t upper = p.fetchRom(); uint8_t lower = p.fetchRom(); p.setPc(lower, upper); }
     void sjmp(Processor& p) { int8_t offset = p.fetchRom(); p.setPc(p.pc + offset); }
     void jmp(Processor& p) { printf("\"jmp\" called but not implemented\n"); }
 
-    void acall1(Processor& p) { printf("\"acall1\" called but not implemented\n"); }
-    void acall2(Processor& p) { printf("\"acall2\" called but not implemented\n"); }
-    void acall3(Processor& p) { printf("\"acall3\" called but not implemented\n"); }
-    void acall4(Processor& p) { printf("\"acall4\" called but not implemented\n"); }
-    void acall5(Processor& p) { printf("\"acall5\" called but not implemented\n"); }
-    void acall6(Processor& p) { printf("\"acall6\" called but not implemented\n"); }
-    void acall7(Processor& p) { printf("\"acall7\" called but not implemented\n"); }
-    void acall8(Processor& p) { printf("\"acall8\" called but not implemented\n"); }
+    void acall(Processor& p) { printf("\"acall\" called but not implemented\n"); }
 
     void lcall(Processor& p) { printf("\"lcall\" called but not implemented\n"); }
 
@@ -63,7 +49,7 @@ namespace emu {
     void dec_r6(Processor& p) { printf("\"dec_r6\" called but not implemented\n"); }
     void dec_r7(Processor& p) { printf("\"dec_r7\" called but not implemented\n"); }
 
-    void jb(Processor& p) { printf("\"jb\" called but not implemented\n"); }
+    void jb(Processor& p) { uint8_t badr = p.fetchRom(); uint8_t offset = p.fetchRom(); if(p.ram.readBit(badr)) { p.setPc(p.pc + offset); } }
     void jbc(Processor& p) { printf("\"jbc\" called but not implemented\n"); }
     void jnb(Processor& p) { printf("\"jnb\" called but not implemented\n"); }
     void jc(Processor& p) { printf("\"jc\" called but not implemented\n"); }
@@ -144,15 +130,15 @@ namespace emu {
 
     void swap(Processor& p) { printf("\"swap\" called but not implemented\n"); }
 
-    void cpl_badr(Processor& p) { printf("\"cpl_badr\" called but not implemented\n"); }
-    void cpl_c(Processor& p) { printf("\"cpl_c\" called but not implemented\n"); }
+    void cpl_badr(Processor& p) { uint8_t badr = p.fetchRom(); p.ram.writeBit(badr, !p.ram.readBit(badr)); }
+    void cpl_c(Processor& p) { p.ram.writeBit(0xD7, !p.ram.readBit(0xD7)); }
     void cpl_a(Processor& p) { printf("\"cpl_a\" called but not implemented\n"); }
 
-    void clr_badr(Processor& p) { printf("\"clr_badr\" called but not implemented\n"); }
-    void clr_c(Processor& p) { printf("\"clr_c\" called but not implemented\n"); }
+    void clr_badr(Processor& p) { uint8_t badr = p.fetchRom(); p.ram.writeBit(badr, false); }
+    void clr_c(Processor& p) { p.ram.writeBit(0xD7, false); }
 
-    void setb_badr(Processor& p) { printf("\"setb_badr\" called but not implemented\n"); }
-    void setb_c(Processor& p) { printf("\"setb_c\" called but not implemented\n"); }
+    void setb_badr(Processor& p) { uint8_t badr = p.fetchRom(); p.ram.writeBit(badr, true); }
+    void setb_c(Processor& p) { p.ram.writeBit(0xD7, true); }
 
     void clr_a(Processor& p) { printf("\"clr_a\" called but not implemented\n"); }
 
@@ -296,7 +282,7 @@ namespace emu {
 
     const op_function_t ops[] = {
             nop,
-            ajmp1,
+            ajmp,
             ljmp,
             rr,
             inc_a,
@@ -312,7 +298,7 @@ namespace emu {
             inc_r6,
             inc_r7,
             jbc,
-            acall1,
+            acall,
             lcall,
             rrc,
             dec_a,
@@ -328,7 +314,7 @@ namespace emu {
             dec_r6,
             dec_r7,
             jb,
-            ajmp2,
+            ajmp,
             ret,
             rl,
             add_a_const,
@@ -344,7 +330,7 @@ namespace emu {
             add_a_r6,
             add_a_r7,
             jnb,
-            acall2,
+            acall,
             reti,
             rlc,
             addc_a_const,
@@ -360,7 +346,7 @@ namespace emu {
             addc_a_r6,
             addc_a_r7,
             jc,
-            ajmp3,
+            ajmp,
             orl_dadr_a,
             orl_dadr_const,
             orl_a_const,
@@ -376,7 +362,7 @@ namespace emu {
             orl_a_r6,
             orl_a_r7,
             jnc,
-            acall3,
+            acall,
             anl_dadr_a,
             anl_dadr_const,
             anl_a_const,
@@ -392,7 +378,7 @@ namespace emu {
             anl_a_r6,
             anl_a_r7,
             jz,
-            ajmp4,
+            ajmp,
             xrl_dadr_a,
             xrl_dadr_const,
             xrl_a_const,
@@ -408,7 +394,7 @@ namespace emu {
             xrl_a_r6,
             xrl_a_r7,
             jnz,
-            acall4,
+            acall,
             orl_c_badr,
             jmp,
             mov_a_const,
@@ -424,7 +410,7 @@ namespace emu {
             mov_r6_const,
             mov_r7_const,
             sjmp,
-            ajmp5,
+            ajmp,
             anl_c_badr,
             movc_a_a_pc,
             div,
@@ -440,7 +426,7 @@ namespace emu {
             mov_dadr_r6,
             mov_dadr_r7,
             mov_dptr_const,
-            acall5,
+            acall,
             mov_badr_c,
             movc_a_a_dptr,
             subb_a_const,
@@ -456,7 +442,7 @@ namespace emu {
             subb_a_r6,
             subb_a_r7,
             orl_c_not_badr,
-            ajmp6,
+            ajmp,
             mov_c_badr,
             inc_dptr,
             mul,
@@ -472,7 +458,7 @@ namespace emu {
             mov_r6_dadr,
             mov_r7_dadr,
             anl_c_not_badr,
-            acall6,
+            acall,
             cpl_badr,
             cpl_c,
             cjne_a_const,
@@ -488,7 +474,7 @@ namespace emu {
             cjne_r6_const,
             cjne_r7_const,
             push,
-            ajmp7,
+            ajmp,
             clr_badr,
             clr_c,
             swap,
@@ -504,7 +490,7 @@ namespace emu {
             xch_a_r6,
             xch_a_r7,
             pop,
-            acall7,
+            acall,
             setb_badr,
             setb_c,
             da,
@@ -520,7 +506,7 @@ namespace emu {
             djnz_r6,
             djnz_r7,
             movx_a_dptr,
-            ajmp8,
+            ajmp,
             movx_a_atr0,
             movx_a_atr1,
             clr_a,
@@ -536,7 +522,7 @@ namespace emu {
             mov_a_r6,
             mov_a_r7,
             movx_dptr_a,
-            acall8,
+            acall,
             movx_atr0_a,
             movx_atr1_a,
             cpl_a,
