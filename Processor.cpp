@@ -9,8 +9,21 @@
 namespace emu {
 
     Processor::Processor()
-            : rom(0x8000) {
-
+            : rom(0x8000),
+              ram(),
+              a(),
+              b(),
+              psw(),
+              sp(0x07) {
+        ram.registerSfr(0x01, sp);
+        ram.registerSfr(0x50, psw);
+        ram.registerSfr(0x60, a);
+        ram.registerSfr(0x70, b);
+        ram.registerSfr(0x00, p0);
+        ram.registerSfr(0x10, p1);
+        ram.registerSfr(0x20, p2);
+        ram.registerSfr(0x30, p3);
+        ram.registerSfr(0x40, p4);
     }
 
     void Processor::run() {
@@ -60,86 +73,6 @@ namespace emu {
 
     void Processor::setPc(uint8_t lower, uint8_t upper) {
         setPc(lower | upper << 8);
-    }
-
-    Memory::Memory()
-            : mem(256) {
-
-    }
-
-    uint8_t Memory::read(uint8_t address, bool indirect) {
-        if(!indirect || address < 0x80) {
-            return mem[address];
-        } else {
-            // SFR
-            return readSfr(address);
-        }
-    }
-
-    uint8_t Memory::read(uint8_t address) {
-        return read(address, false);
-    }
-
-    void Memory::write(uint8_t address, uint8_t value, bool indirect) {
-        if(!indirect || address < 0x80) {
-            mem[address] = value;
-        } else {
-            // SFR
-            writeSfr(address, value);
-        }
-    }
-
-    void Memory::write(uint8_t address, uint8_t value) {
-        write(address, value, false);
-    }
-
-    bool Memory::readBit(uint8_t address) {
-        if(address < 0x80) {
-            uint8_t byte = static_cast<uint8_t>(0x20 + address >> 3);
-            uint8_t bit = static_cast<uint8_t>(1 << (address & 0x7));
-
-            return mem[byte] & bit;
-        } else {
-            // SFR
-            uint8_t byte = static_cast<uint8_t>(0x80 + (((address - 0x80) >> 3) << 3));
-            uint8_t bit = static_cast<uint8_t>(1 << (address & 0x7));
-
-            return readSfr(byte) & bit;
-        }
-    }
-
-    void Memory::writeBit(uint8_t address, bool value) {
-        if(address < 0x80) {
-            uint8_t byte = static_cast<uint8_t>(0x20 + address >> 3);
-            uint8_t bit = static_cast<uint8_t>(1 << (address & 0x7));
-
-            if(value) {
-                mem[byte] |= bit;
-            } else {
-                mem[byte] &= ~bit;
-            }
-        } else {
-            // SFR
-            uint8_t byte = static_cast<uint8_t>(0x80 + (((address - 0x80) >> 3) << 3));
-            uint8_t bit = static_cast<uint8_t>(1 << (address & 0x7));
-
-            // TODO: need writeSfrBit?
-            if(value) {
-                writeSfr(byte, readSfr(byte) | bit);
-            } else {
-                writeSfr(byte, readSfr(byte) & ~bit);
-            }
-        }
-    }
-
-    // TODO
-    uint8_t Memory::readSfr(uint8_t address) {
-        return 0x00;
-    }
-
-    // TODO
-    void Memory::writeSfr(uint8_t address, uint8_t value) {
-
     }
 
 }

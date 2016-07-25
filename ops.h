@@ -6,9 +6,9 @@
 
 namespace emu {
 
-    typedef void (*op_function_t)(Processor &p);
+    typedef void (*op_func_t)(Processor &p);
 
-    extern const op_function_t ops[];
+    extern const op_func_t ops[];
     extern const size_t op_count;
 
 }

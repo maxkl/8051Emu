@@ -4,24 +4,9 @@
 
 #include <vector>
 #include <cstdint>
+#include "Memory.h"
 
 namespace emu {
-
-    class Memory {
-    public:
-        Memory();
-        uint8_t read(uint8_t address, bool indirect);
-        uint8_t read(uint8_t address);
-        void write(uint8_t address, uint8_t value, bool indirect);
-        void write(uint8_t address, uint8_t value);
-        bool readBit(uint8_t address);
-        void writeBit(uint8_t address, bool value);
-        uint8_t readSfr(uint8_t address);
-        void writeSfr(uint8_t address, uint8_t value);
-
-    private:
-        std::vector<std::uint8_t> mem;
-    };
 
     class Processor {
     public:
@@ -42,8 +27,13 @@ namespace emu {
         Memory ram;
         std::uint16_t pc;
         std::uint8_t instruction;
-    private:
 
+        StoreSfr a;
+        StoreSfr b;
+        PswSfr psw;
+        StoreSfr sp;
+        PortSfr p0, p1, p2, p3, p4;
+    private:
         void tick();
     };
 

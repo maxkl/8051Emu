@@ -5,6 +5,8 @@
 
 namespace emu {
 
+    // TODO: implement what can be implemented now
+
     void nop(Processor& p) {}
 
     void ajmp(Processor& p) { uint8_t lower = p.fetchRom(); uint8_t upper = static_cast<uint8_t>(p.pc & 0xf8 | (p.instruction & 0xe0) >> 5); p.setPc(lower, upper); }
@@ -13,6 +15,7 @@ namespace emu {
     void sjmp(Processor& p) { int8_t offset = p.fetchRom(); p.setPc(p.pc + offset); }
     void jmp(Processor& p) { printf("\"jmp\" called but not implemented\n"); }
 
+    // TODO: sfrs, stack, call(acall, lcall), push, pop
     void acall(Processor& p) { printf("\"acall\" called but not implemented\n"); }
 
     void lcall(Processor& p) { printf("\"lcall\" called but not implemented\n"); }
@@ -49,9 +52,9 @@ namespace emu {
     void dec_r6(Processor& p) { printf("\"dec_r6\" called but not implemented\n"); }
     void dec_r7(Processor& p) { printf("\"dec_r7\" called but not implemented\n"); }
 
-    void jb(Processor& p) { uint8_t badr = p.fetchRom(); uint8_t offset = p.fetchRom(); if(p.ram.readBit(badr)) { p.setPc(p.pc + offset); } }
-    void jbc(Processor& p) { uint8_t badr = p.fetchRom(); uint8_t offset = p.fetchRom(); if(p.ram.readBit(badr)) { p.ram.writeBit(badr, false); p.setPc(p.pc + offset); } }
-    void jnb(Processor& p) { uint8_t badr = p.fetchRom(); uint8_t offset = p.fetchRom(); if(!p.ram.readBit(badr)) { p.setPc(p.pc + offset); } }
+    void jb(Processor& p) { uint8_t badr = p.fetchRom(); int8_t offset = p.fetchRom(); if(p.ram.readBit(badr)) { p.setPc(p.pc + offset); } }
+    void jbc(Processor& p) { uint8_t badr = p.fetchRom(); int8_t offset = p.fetchRom(); if(p.ram.readBit(badr)) { p.ram.writeBit(badr, false); p.setPc(p.pc + offset); } }
+    void jnb(Processor& p) { uint8_t badr = p.fetchRom(); int8_t offset = p.fetchRom(); if(!p.ram.readBit(badr)) { p.setPc(p.pc + offset); } }
     void jc(Processor& p) { printf("\"jc\" called but not implemented\n"); }
     void jnc(Processor& p) { printf("\"jnc\" called but not implemented\n"); }
     void jz(Processor& p) { printf("\"jz\" called but not implemented\n"); }
@@ -280,7 +283,7 @@ namespace emu {
     void reserved(Processor& p) { printf("\"reserved\" called but not implemented\n"); }
 
 
-    const op_function_t ops[] = {
+    const op_func_t ops[] = {
             nop,
             ajmp,
             ljmp,
