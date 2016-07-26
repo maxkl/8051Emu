@@ -51,6 +51,10 @@ namespace emu {
         cy = static_cast<bool>(value & (1 << 7));
     }
 
+    uint8_t PswSfr::getRegistersBaseAddress() {
+        return static_cast<uint8_t>((rs1 << 1 | rs0) * 0x08);
+    }
+
     PortSfr::PortSfr()
             : outputValue(0xff),
               inputValue(0x00) {
@@ -62,7 +66,19 @@ namespace emu {
     }
 
     void PortSfr::write(uint8_t value) {
-        printf("Port set to 0x%02x\n", value);
         outputValue = value;
+    }
+
+    DebugPortSfr::DebugPortSfr() {
+
+    }
+
+    void DebugPortSfr::write(uint8_t value) {
+        if(value >= 0x20 && value <= 0x7e) {
+            printf("[DEBUG] 0x%02x = '%c'\n", value, value);
+        } else {
+            printf("[DEBUG] 0x%02x =\n", value);
+        }
+        PortSfr::write(value);
     }
 }

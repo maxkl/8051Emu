@@ -26,6 +26,8 @@ namespace emu {
         virtual uint8_t read();
         virtual void write(uint8_t value);
 
+        uint8_t getRegistersBaseAddress();
+
         bool p, ud, ov, rs0, rs1, f0, ac, cy;
     };
 
@@ -39,6 +41,13 @@ namespace emu {
     private:
         uint8_t outputValue;
         uint8_t inputValue;
+    };
+
+    class DebugPortSfr : public PortSfr {
+    public:
+        DebugPortSfr();
+
+        virtual void write(uint8_t value);
     };
 
 }

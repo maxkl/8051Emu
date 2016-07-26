@@ -23,6 +23,12 @@ namespace emu {
         void setPc(uint16_t value);
         void setPc(uint8_t lower, uint8_t upper);
 
+        uint8_t getReg(uint8_t reg);
+        void setReg(uint8_t reg, uint8_t value);
+
+        uint8_t popStack();
+        void pushStack(uint8_t value);
+
         std::vector<std::uint8_t> rom;
         Memory ram;
         std::uint16_t pc;
@@ -32,7 +38,8 @@ namespace emu {
         StoreSfr b;
         PswSfr psw;
         StoreSfr sp;
-        PortSfr p0, p1, p2, p3, p4;
+        DebugPortSfr p0;
+        PortSfr p1, p2, p3, p4;
     private:
         void tick();
     };

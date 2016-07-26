@@ -75,4 +75,25 @@ namespace emu {
         setPc(lower | upper << 8);
     }
 
+    uint8_t Processor::getReg(uint8_t reg) {
+        return ram.read(psw.getRegistersBaseAddress() + reg);
+    }
+
+    void Processor::setReg(uint8_t reg, uint8_t value) {
+        ram.write(psw.getRegistersBaseAddress() + reg, value);
+    }
+
+    uint8_t Processor::popStack() {
+        uint8_t oldSp = sp.read();
+        uint8_t value = ram.read(oldSp);
+        sp.write(static_cast<uint8_t>(oldSp - 1));
+        return value;
+    }
+
+    void Processor::pushStack(uint8_t value) {
+        uint8_t newSp = static_cast<uint8_t>(sp.read() + 1);
+        sp.write(newSp);
+        ram.write(newSp, value);
+    }
+
 }

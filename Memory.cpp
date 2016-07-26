@@ -15,11 +15,11 @@ namespace emu {
     }
 
     uint8_t Memory::read(uint8_t address, bool indirect) {
-        if(!indirect || address < 0x80) {
+        if(!indirect && address < 0x80) {
             return mem[address];
         } else {
             // SFR
-            return readSfr(address);
+            return readSfr(static_cast<uint8_t>(address - 0x80));
         }
     }
 
@@ -28,11 +28,11 @@ namespace emu {
     }
 
     void Memory::write(uint8_t address, uint8_t value, bool indirect) {
-        if(!indirect || address < 0x80) {
+        if(!indirect && address < 0x80) {
             mem[address] = value;
         } else {
             // SFR
-            writeSfr(address, value);
+            writeSfr(static_cast<uint8_t>(address - 0x80), value);
         }
     }
 
