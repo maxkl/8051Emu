@@ -21,7 +21,7 @@ namespace emu {
         val = value;
     }
 
-    PswSfr::PswSfr() : p(false), ud(false), ov(false), rs0(false), rs1(false), f0(false), ac(false), cy(false) {
+    PswSfr::PswSfr() {
 
     }
 

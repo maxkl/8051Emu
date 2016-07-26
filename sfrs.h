@@ -28,7 +28,7 @@ namespace emu {
 
         uint8_t getRegistersBaseAddress();
 
-        bool p, ud, ov, rs0, rs1, f0, ac, cy;
+        bool p = false, ud = false, ov = false, rs0 = false, rs1 = false, f0 = false, ac = false, cy = false;
     };
 
     class PortSfr : public Sfr {
