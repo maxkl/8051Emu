@@ -3,6 +3,8 @@
 #include <iostream>
 #include <iomanip>
 #include <map>
+#include <chrono>
+#include <thread>
 #include "Processor.h"
 #include "ops.h"
 
@@ -14,8 +16,12 @@ namespace emu {
               a(),
               b(),
               psw(),
-              sp(0x07) {
+              sp(0x07),
+              dpl(),
+              dph() {
         ram.registerSfr(0x01, sp);
+        ram.registerSfr(0x02, dpl);
+        ram.registerSfr(0x03, dph);
         ram.registerSfr(0x50, psw);
         ram.registerSfr(0x60, a);
         ram.registerSfr(0x70, b);
@@ -37,6 +43,7 @@ namespace emu {
     void Processor::tick() {
         // TODO: timers, interrupts
         execOp();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     void Processor::writeRom(uint16_t address, const std::vector<std::uint8_t> &data) {
@@ -94,6 +101,19 @@ namespace emu {
         uint8_t newSp = static_cast<uint8_t>(sp.read() + 1);
         sp.write(newSp);
         ram.write(newSp, value);
+    }
+
+    uint16_t Processor::getDptr() {
+        return dph.read() << 8 | dpl.read();
+    }
+
+    void Processor::setDptr(uint16_t value) {
+        dpl.write(static_cast<uint8_t>(value & 0xff));
+    }
+
+    void Processor::setDptr(uint8_t lower, uint8_t upper) {
+        dpl.write(lower);
+        dph.write(upper);
     }
 
 }

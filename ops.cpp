@@ -5,7 +5,7 @@
 
 namespace emu {
 
-    // TODO: DPTR
+    // TODO: proper input output handling of ports (e.g. INC)
 
     void nop(Processor& p) {}
 
@@ -13,7 +13,7 @@ namespace emu {
 
     void ljmp(Processor& p) { uint8_t upper = p.fetchRom(); uint8_t lower = p.fetchRom(); p.setPc(lower, upper); }
     void sjmp(Processor& p) { int8_t offset = p.fetchRom(); p.setPc(p.pc + offset); }
-    void jmp_dptr(Processor &p) { printf("\"jmp_dptr\" called but not implemented\n"); }
+    void jmp_dptr(Processor &p) { uint16_t addr = p.getDptr() + p.a.read(); p.setPc(addr); }
 
     void acall(Processor& p) { uint8_t lower = p.fetchRom(); uint8_t upper = static_cast<uint8_t>(((p.pc & 0xf800) >> 8) | ((p.instruction & 0xe0) >> 5)); uint8_t pcUpper =
                 static_cast<uint8_t>((p.pc & 0xff00) >> 8); uint8_t pcLower = static_cast<uint8_t>(p.pc & 0x00ff); p.pushStack(pcLower); p.pushStack(pcUpper); p.setPc(lower, upper); }
@@ -27,15 +27,15 @@ namespace emu {
     void rlc(Processor& p) { printf("\"rlc\" called but not implemented\n"); }
 
     void inc_a(Processor& p) { p.a.write(static_cast<uint8_t>(p.a.read() + 1)); }
-    void inc_dadr(Processor& p) { printf("\"inc_dadr\" called but not implemented\n"); }
-    void inc_atr(Processor& p) { printf("\"inc_atr\" called but not implemented\n"); }
-    void inc_r(Processor& p) { printf("\"inc_r\" called but not implemented\n"); }
-    void inc_dptr(Processor& p) { printf("\"inc_dptr\" called but not implemented\n"); }
+    void inc_dadr(Processor& p) { uint8_t addr = p.fetchRom(); p.ram.write(addr, static_cast<uint8_t>(p.ram.read(addr) + 1)); }
+    void inc_atr(Processor& p) { uint8_t addr = p.ram.read(p.getReg(static_cast<uint8_t>(p.instruction & 0x1))); p.ram.write(addr, static_cast<uint8_t>(p.ram.read(addr, true) + 1), true); }
+    void inc_r(Processor& p) { uint8_t reg = static_cast<uint8_t>(p.instruction & 0x7); p.setReg(reg, static_cast<uint8_t>(p.getReg(reg) + 1)); }
+    void inc_dptr(Processor& p) { p.setDptr(static_cast<uint16_t>(p.getDptr() + 1)); }
 
     void dec_a(Processor& p) { p.a.write(static_cast<uint8_t>(p.a.read() - 1)); }
-    void dec_dadr(Processor& p) { printf("\"dec_dadr\" called but not implemented\n"); }
-    void dec_atr(Processor& p) { printf("\"dec_atr\" called but not implemented\n"); }
-    void dec_r(Processor& p) { printf("\"dec_r\" called but not implemented\n"); }
+    void dec_dadr(Processor& p) { uint8_t addr = p.fetchRom(); p.ram.write(addr, static_cast<uint8_t>(p.ram.read(addr) - 1)); }
+    void dec_atr(Processor& p) { uint8_t addr = p.ram.read(p.getReg(static_cast<uint8_t>(p.instruction & 0x1))); p.ram.write(addr, static_cast<uint8_t>(p.ram.read(addr, true) - 1), true); }
+    void dec_r(Processor& p) { uint8_t reg = static_cast<uint8_t>(p.instruction & 0x7); p.setReg(reg, static_cast<uint8_t>(p.getReg(reg) - 1)); }
 
     void jb(Processor& p) { uint8_t badr = p.fetchRom(); int8_t offset = p.fetchRom(); if(p.ram.readBit(badr)) { p.setPc(p.pc + offset); } }
     void jbc(Processor& p) { uint8_t badr = p.fetchRom(); int8_t offset = p.fetchRom(); if(p.ram.readBit(badr)) { p.ram.writeBit(badr, false); p.setPc(p.pc + offset); } }
@@ -45,13 +45,14 @@ namespace emu {
     void jz(Processor& p) { int8_t offset = p.fetchRom(); if(p.a.read() == 0x00) { p.setPc(p.pc + offset); } }
     void jnz(Processor& p) { int8_t offset = p.fetchRom(); if(p.a.read() != 0x00) { p.setPc(p.pc + offset); } }
 
-    void cjne_a_const(Processor& p) { printf("\"cjne_a_const\" called but not implemented\n"); }
-    void cjne_a_dadr(Processor& p) { printf("\"cjne_a_dadr\" called but not implemented\n"); }
-    void cjne_atr_const(Processor& p) { printf("\"cjne_atr_const\" called but not implemented\n"); }
-    void cjne_r_const(Processor& p) { printf("\"cjne_r_const\" called but not implemented\n"); }
+    void cjne(Processor& p, uint8_t a, uint8_t b, int8_t offset) { if(a == b) { p.setPc(p.pc + offset); } p.psw.cy = a < b; }
+    void cjne_a_const(Processor& p) { uint8_t value = p.fetchRom(); int8_t offset = p.fetchRom(); cjne(p, p.a.read(), value, offset); }
+    void cjne_a_dadr(Processor& p) { uint8_t addr = p.fetchRom(); int8_t offset = p.fetchRom(); cjne(p, p.a.read(), p.ram.read(addr), offset); }
+    void cjne_atr_const(Processor& p) { uint8_t value = p.fetchRom(); int8_t offset = p.fetchRom(); cjne(p, p.ram.read(p.getReg(static_cast<uint8_t>(p.instruction & 0x1)), true), value, offset); }
+    void cjne_r_const(Processor& p) { uint8_t value = p.fetchRom(); int8_t offset = p.fetchRom(); cjne(p, p.getReg(static_cast<uint8_t>(p.instruction & 0x7)), value, offset); }
 
-    void djnz_dadr(Processor& p) { printf("\"djnz_dadr\" called but not implemented\n"); }
-    void djnz_r(Processor& p) { printf("\"djnz_r\" called but not implemented\n"); }
+    void djnz_dadr(Processor& p) { uint8_t addr = p.fetchRom(); int8_t offset = p.fetchRom(); uint8_t newVal = static_cast<uint8_t>(p.ram.read(addr) - 1); p.ram.write(addr, newVal); if(newVal != 0) { p.setPc(p.pc + offset); } }
+    void djnz_r(Processor& p) { int8_t offset = p.fetchRom(); uint8_t reg = static_cast<uint8_t>(p.instruction & 0x7); uint8_t newVal = static_cast<uint8_t>(p.getReg(reg) - 1); p.setReg(reg, newVal); if(newVal != 0) { p.setPc(p.pc + offset); } }
 
     void push(Processor& p) { uint8_t addr = p.fetchRom(); p.pushStack(p.ram.read(addr)); }
     void pop(Processor& p) { uint8_t addr = p.fetchRom(); p.ram.write(addr, p.popStack()); }
@@ -131,12 +132,12 @@ namespace emu {
     void mov_dadr_a(Processor& p) { uint8_t addr = p.fetchRom(); p.ram.write(addr, p.a.read()); }
     void mov_atr_a(Processor& p) { p.ram.write(p.getReg(static_cast<uint8_t>(p.instruction & 0x1)), p.a.read(), true); }
     void mov_r_a(Processor& p) { p.setReg(static_cast<uint8_t>(p.instruction & 0x7), p.a.read()); }
-    void mov_dptr_const(Processor& p) { printf("\"mov_dptr_const\" called but not implemented\n"); }
+    void mov_dptr_const(Processor& p) { uint8_t upper = p.fetchRom(); uint8_t lower = p.fetchRom(); p.setDptr(lower, upper); }
     void mov_badr_c(Processor& p) { uint8_t badr = p.fetchRom(); p.ram.writeBit(badr, p.psw.cy); }
     void mov_c_badr(Processor& p) { uint8_t badr = p.fetchRom(); p.psw.cy = p.ram.readBit(badr); }
 
-    void movc_a_a_pc(Processor& p) { printf("\"movc_a_a_pc\" called but not implemented\n"); }
-    void movc_a_a_dptr(Processor& p) { printf("\"movc_a_a_dptr\" called but not implemented\n"); }
+    void movc_a_a_pc(Processor& p) { uint16_t addr = p.pc + p.a.read(); p.a.write(p.rom[addr]); }
+    void movc_a_a_dptr(Processor& p) { uint16_t addr = p.getDptr() + p.a.read(); p.a.write(p.rom[addr]); }
 
     void movx_a_dptr(Processor& p) { printf("\"movx_a_dptr\" called but not implemented\n"); }
     void movx_a_atr(Processor& p) { printf("\"movx_a_atr\" called but not implemented\n"); }

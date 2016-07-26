@@ -29,6 +29,10 @@ namespace emu {
         uint8_t popStack();
         void pushStack(uint8_t value);
 
+        uint16_t getDptr();
+        void setDptr(uint16_t value);
+        void setDptr(uint8_t lower, uint8_t upper);
+
         std::vector<std::uint8_t> rom;
         Memory ram;
         std::uint16_t pc;
@@ -40,6 +44,7 @@ namespace emu {
         StoreSfr sp;
         DebugPortSfr p0;
         PortSfr p1, p2, p3, p4;
+        StoreSfr dpl, dph;
     private:
         void tick();
     };
