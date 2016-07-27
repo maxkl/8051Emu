@@ -5,7 +5,8 @@
 
 namespace emu {
 
-    // TODO: proper input output handling of ports (e.g. INC)
+    // TODO: proper input output handling of ports:
+    // ANL, CPL, DEC, DJNZ, INC, JBC, ORL, XRL
 
     void nop(Processor& p) {}
 
